@@ -13,7 +13,7 @@ int comp_str(const void *a, const void *b)
     return strcmp(*stra, *strb);
 }
 
-//Ordena os sufixos e cria os vetores SA e LCP
+//qsort return SA
 int *Naive(char *String, int N)
 {
 
@@ -39,6 +39,7 @@ int *Naive(char *String, int N)
     return SA;
 }
 
+//Mambers & Myers sorting suffix array
 int *MM90(char *String, int N)
 {
     int i, j, k, H, saH, pos, aux;
@@ -49,8 +50,8 @@ int *MM90(char *String, int N)
     int *SB = (int *)malloc(N * sizeof(int));    //Start of Bucket
     bool *B = (bool *)malloc(N * sizeof(bool));  //Bucket
 
-    int *SA2H = (int *)malloc(N * sizeof(int));
-    int *SB2H = (int *)malloc(N * sizeof(int));
+    int *SA2H = (int *)malloc(N * sizeof(int)); //stage H sort result
+    int *SB2H = (int *)malloc(N * sizeof(int)); //Index
 
     for (int i = 0; i < N; i++)
     {
@@ -64,24 +65,25 @@ int *MM90(char *String, int N)
         bucket[i] = 0;
     for (i = 0; i < N; i++)
     {
-        bucket[(int)String[i]]++; //Conta cada letra
+        bucket[(int)String[i]]++; //Count any char
     }
     aux = 0;
     for (i = 0; i < 256; i++)
-        if (bucket[i] != 0) //Letra da String
+        if (bucket[i] != 0) //char of string
         {
             aux += bucket[i];
-            bucket[i] = aux - bucket[i]; //Posição inicial no vetor SA de acordo com o bucket
+            bucket[i] = aux - bucket[i]; //accumulated sum
             B[bucket[i]] = true;
         }
-    for (i = 0; i < N; i++) //SA organizado pelo primeiro caracter
+    for (i = 0; i < N; i++) //First char sort in SA
     {
         j = (int)String[i];
         SA[bucket[j]] = i;
         ISA[i] = bucket[j];
         bucket[j]++;
-        Count[i] = SB[i] = 0;
-        SA2H[i] = 0;
+
+        //initiated
+        SA2H[i] = Count[i] = SB[i] = 0;
     }
     //////////////////////
     if (DEBUG)
@@ -98,7 +100,7 @@ int *MM90(char *String, int N)
     ////////////////////
     for (H = 1; H < N; H *= 2)
     {
-        ///ORGANIZA BUCKETS//
+        ///Count number of buckets//
         int nbucket = 0;
         for (j = 0, i = 0; i < N; i++)
         {
@@ -175,11 +177,11 @@ int main(int argc, char *argv[])
     }
     int N = strlen(String);
 
+    //NAIVE & MM90
     int *SA_MM90 = MM90(String, N);
     int *SA_Naive = Naive(String, N);
 
-    //TESTES
-    //*
+    //TEST
     printf("\n%s\n", String);
     int flag = 1;
     for (int i = 0; i < N; i++)
@@ -193,14 +195,14 @@ int main(int argc, char *argv[])
     else
         printf("THIS IS BAD!\n");
 
-    //SALVA AS INFORMAÇÕES EM UM ARQUIVO
+    //SAVE
     FILE *arq = fopen("SA.bin", "wb");
     fwrite(&N, sizeof(int), 1, arq);
     fwrite(String, sizeof(char), N, arq);
     fwrite(SA_MM90, sizeof(int), N, arq);
     fclose(arq);
 
-    //< LIBERA MEMÓRIA ALOCADA >//
+    //< FREE >//
     free(SA_MM90);
     free(SA_Naive);
     free(String);
