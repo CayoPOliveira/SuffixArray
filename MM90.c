@@ -14,11 +14,11 @@ int comp_str(const void *a, const void *b)
 }
 
 //qsort return SA
-int *Naive(char *String, int N)
+int *Naive(char *String, int N, int *LCP)
 {
-
+    //      SA
     int *SA = (int *)malloc(N * sizeof(int));
-    int i = 0;
+    int i;
 
     char **suffixes = (char **)malloc(N * sizeof(char *));
     for (i = 0; i < N; i++)
@@ -36,11 +36,35 @@ int *Naive(char *String, int N)
     }
     free(suffixes);
 
+    //      LCP
+
+    LCP[0] = 0;
+    for (i = 1; i < N; i++)
+    {
+        int lcp = 0;
+        while (String[SA[i] + lcp] == String[SA[i - 1] + lcp])
+        {
+            lcp++;
+        }
+        LCP[i] = lcp;
+    }
+
+    //      DEBUG
+    if (DEBUG)
+    {
+        printf("NAIVE Test\ni\tSA\tLCP\tSuffixes\n");
+        for (i = 0; i < N; i++)
+        {
+            printf("%d\t%d\t%d\t%s\n", i, SA[i], LCP[i], String + SA[i]);
+        }
+        printf("\n");
+    }
+
     return SA;
 }
 
 //Mambers & Myers sorting suffix array
-int *MM90(char *String, int N)
+int *MM90(char *String, int N, int *LCP)
 {
     int i, j, k, H, saH, pos, aux;
 
@@ -84,17 +108,23 @@ int *MM90(char *String, int N)
 
         //initiated
         SA2H[i] = Count[i] = SB[i] = 0;
+        if (B[i])
+            LCP[i] = 0;
+        else
+            LCP[i] = -1;
     }
     //////////////////////
     if (DEBUG)
     {
-        printf("\nBH\tSOB\tSA\tISA\n");
+        printf("\nB\tSB\tSA\tISA\tLCP\tString\n");
         for (int i = 0; i < N; i++)
         {
             printf("%d\t", B[i]);
             printf("%d\t", SB[i]);
             printf("%d\t", SA[i]);
-            printf("%d\n", ISA[i]);
+            printf("%d\t", ISA[i]);
+            printf("%d\t", LCP[i]);
+            printf("%s\n", String + SA[i]);
         }
     }
     ////////////////////
@@ -106,7 +136,7 @@ int *MM90(char *String, int N)
         {
             SB2H[i] = 0;
             Count[i] = 0;
-            if (B[i])
+            if (B[i]) //first suffix bucket
             {
                 nbucket++;
                 j = i;
@@ -132,8 +162,15 @@ int *MM90(char *String, int N)
 
             SB2H[pos] = SB[i]; //bucket id
 
-            if (B[pos] == 0 && SB2H[pos] != SB2H[pos - 1])
+            if (B[pos] == 0 && SB2H[pos] != SB2H[pos - 1]) //new bucket
+            {
                 B[pos] = 1;
+                LCP[pos] = H;
+            }
+            else if (B[pos] == 0)
+            {
+                LCP[pos] = H;
+            }
         }
 
         for (j = 0, i = 0; i < N; i++)
@@ -144,16 +181,28 @@ int *MM90(char *String, int N)
         /////////////////////
         if (DEBUG)
         {
-            printf("\nH=%d\nBH\tSOB\tSA\tISA\n", H);
+            printf("\nH=%d\nB\tSB\tSA\tISA\tLCP\tString\n", H);
             for (int i = 0; i < N; i++)
             {
                 printf("%d\t", B[i]);
                 printf("%d\t", SB[i]);
                 printf("%d\t", SA[i]);
-                printf("%d\n", ISA[i]);
+                printf("%d\t", ISA[i]);
+                printf("%d\t", LCP[i]);
+                printf("%s\n", String + SA[i]);
             }
         }
     }
+
+    //final LCP
+    for (i = 1; i < N; i++)
+    {
+        j = LCP[i] * 2;
+        while (LCP[i] + 1 < j &&
+               String[SA[i] + LCP[i]] == String[SA[i - 1] + LCP[i]]) //lcp(sa(i), sa(i-1))++
+            LCP[i]++;
+    }
+
     ////////////////////////////////////////////////////////////////
     free(ISA);
     free(Count);
@@ -178,17 +227,26 @@ int main(int argc, char *argv[])
     int N = strlen(String);
 
     //NAIVE & MM90
-    int *SA_MM90 = MM90(String, N);
-    int *SA_Naive = Naive(String, N);
+    int *LCP = (int *)malloc(N * sizeof(int));
+    int *LCP_Naive = (int *)malloc(N * sizeof(int));
+
+    int *SA_Naive = Naive(String, N, LCP_Naive);
+    int *SA = MM90(String, N, LCP);
 
     //TEST
     printf("\n%s\n", String);
     int flag = 1;
     for (int i = 0; i < N; i++)
     {
-        printf("%d\t%d\n", SA_Naive[i], SA_MM90[i]);
-        if (SA_MM90[i] != SA_Naive[i])
+        if (DEBUG)
+            printf("%d\t%d\t%d\t%d\t%d\\n", i, SA_Naive[i], SA[i], LCP_Naive[i], LCP[i]);
+        if (SA[i] != SA_Naive[i] || LCP_Naive[i] != LCP[i])
+        {
             flag = 0;
+            printf("\nsuffix %d\n", i);
+            if (!DEBUG)
+                break;
+        }
     }
     if (flag)
         printf("GREAT!\n");
@@ -199,12 +257,14 @@ int main(int argc, char *argv[])
     FILE *arq = fopen("SA.bin", "wb");
     fwrite(&N, sizeof(int), 1, arq);
     fwrite(String, sizeof(char), N, arq);
-    fwrite(SA_MM90, sizeof(int), N, arq);
+    fwrite(SA, sizeof(int), N, arq);
     fclose(arq);
 
     //< FREE >//
-    free(SA_MM90);
+    free(LCP_Naive);
     free(SA_Naive);
+    free(LCP);
+    free(SA);
     free(String);
 
     return 0;
