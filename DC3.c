@@ -3,8 +3,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-//RADIX SORT PRECISA RECEBER O VALOR MAXIMO DE SEUS CARACTERES <INCLUIR ISSO AO FINAL>
-
 int DEBUG = 0;
 int SAVE = 0;
 
@@ -55,29 +53,28 @@ int *Naive(char *String, int N)
 
 //  DC3 ////////////////////////////////
 
-void raddix_sort(int *String, int *sa, int n, int pos, int K) //pos = lenght(substring)-1
+void raddix_sort(int *String, int *SA, int n, int pos, int K) //pos = lenght(substring)-1
 {
   int i = 0, aux = 0;
   int *bucket_id = (int *)malloc(K * sizeof(int));
-  int sa_copy[n];
-  for (int P = pos; P > -1; P--) //P char order
+  int *sa_copy = (int *)malloc((n + 2) * sizeof(int));
+  for (int P = pos; P >= 0; P--) //P char order
   {
     for (i = 0; i < K; i++)
     { //map
       bucket_id[i] = 0;
     }
-    for (i = 0; i < n; i++)
-    { //count and copy sa
-      bucket_id[String[sa[i] + P]]++;
-      sa_copy[i] = sa[i];
-    }
     if (DEBUG)
     {
-      printf("\nBUCKET_ID\nid\n");
-      for (i = 0; i < K; i++)
-      { //first position
-        printf("%d\n", bucket_id[i]);
+      for (i = 0; i < n; i++)
+      {
+        printf("suffix%d: %d%d%d\n", SA[i], String[SA[i]], String[SA[i] + 1], String[SA[i] + 2]);
       }
+    }
+    for (i = 0; i < n; i++)
+    { //count and copy sa
+      bucket_id[String[SA[i] + P]]++;
+      sa_copy[i] = SA[i];
     }
     aux = 0;
     for (i = 0; i < K; i++)
@@ -87,217 +84,108 @@ void raddix_sort(int *String, int *sa, int n, int pos, int K) //pos = lenght(sub
     }
     if (DEBUG)
     {
-      printf("\nBUCKET_ID\nid\tsa\n");
+      printf("\nBUCKET_ID\ni\tid\n");
       for (i = 0; i < K; i++)
       { //first position
-        printf("%d\t%d\n", bucket_id[i], sa[i]);
+        printf("%d\t%d\n", i, bucket_id[i]);
       }
+      printf("\nsa\n");
+      for (i = 0; i < n; i++)
+      { //first position
+        printf("%d\t", SA[i]);
+      }
+      printf("\n");
     }
     for (i = 0; i < n; i++)
     { //sort
-      int c = String[sa_copy[i] + P];
-      sa[bucket_id[c]++] = sa_copy[i];
+      SA[bucket_id[String[sa_copy[i] + P]]++] = sa_copy[i];
     }
     if (DEBUG)
     {
-      printf("\nBUCKET_ID\nid\tsa\n");
-      for (i = 0; i < K; i++)
+      printf("\nsa\n");
+      for (i = 0; i < n; i++)
       { //first position
-        printf("%d\t%d\n", bucket_id[i], sa[i]);
+        printf("%d\t", SA[i]);
       }
+      printf("\n");
     }
   }
   free(bucket_id);
+  free(sa_copy);
 }
 
-void sort_sa12(int *u, int N, int *sa12, int n12, int K) //não funciona ainda
-{
-  int i = 0, j = 0, k = 1, flag = 1;
-
-  int isa12[N];
-  for (i = 0; i < n12; i++) //order sa12
-  {
-    isa12[sa12[i]] = i;
-  }
-
-  // int *str_aux = (int *)malloc(N * sizeof(int));
-  // for (i = 0; i < N; i++)
-  // {
-  //   str_aux[i] = u[i];
-  // }
-  // str_aux[N] = str_aux[N + 1] = (int)'$';
-  raddix_sort(u, sa12, n12, 2, K);
-
-  int mid = (N + 1) / 3;
-  int *u2 = (int *)malloc((n12) * sizeof(int)); //new string
-  //u[n12] = u[n12 + 1] = u[n12 + 2] = 0;
-  for (i = 1; i < n12; i++)
-  { //unique triplets
-    if (u[sa12[i] + 0] != u[sa12[i - 1] + 0] ||
-        u[sa12[i] + 1] != u[sa12[i - 1] + 1] ||
-        u[sa12[i] + 2] != u[sa12[i - 1] + 2])
-      k++;
-    if (sa12[i] % 3 == 1) //mod 1
-      u2[sa12[i] / 3] = k;
-    else //mod 2
-      u2[(sa12[i] / 3) + mid] = k;
-  }
-  if (k < n12)
-  {
-    DC3(u2, n12, sa12, k + 1);
-  }
-
-  free(u2);
-  //free(str_aux);
-}
-
-void build_sa3(int *String, int N, int *sa12, int m12, int *sa3, int m3, int K)
-{
-  int i = 0, j = 0;
-  //first step, sa12 order
-  for (i = 0; i < m12; i++)
-  {
-    if (sa12[i] % 3 == 1)
-      sa3[j++] = sa12[i] - 1;
-  }
-
-  //second step, raddix_sort(fist char)
-  raddix_sort(String, sa3, m3, 0, K + 1);
-
-  return;
-}
-
-void merge(int *String, int N, int *sa12, int n12, int *sa3, int n3, int *SA)
-{
-  int i = 0, c3 = 0, c12 = 0;
-
-  int isa12[N];
-  for (i = 0; i < n12; i++) //order sa12
-  {
-    isa12[sa12[i]] = i;
-  }
-
-  if (N % 3 == 0)
-  {
-    SA[0] = N - 1;
-    i = 1;
-  }
-  else
-    i = 0;
-
-  for (i; i < N; i++)
-  {
-    if (c3 >= n3) //  all sa3 suffixes in SA
-    {
-      while (i++ < N)
-        SA[i] = sa12[c12++];
-
-      break;
-    }
-    if (c12 >= n12) //  all sa12 suffixes in SA
-    {
-      while (i++ < N)
-        SA[i] = sa3[c3++];
-
-      break;
-    }
-
-    if (String[sa3[c3]] < String[sa12[c12]]) // sa3
-      SA[i] = sa3[c3++];
-    else if (String[sa3[c3]] > String[sa12[c12]]) //  sa12
-      SA[i] = sa12[c12++];
-    else //try again
-    {
-      if (sa12[c12] % 3 == 1)
-      {
-        SA[i] = (isa12[sa3[c3] + 1] < isa12[sa12[c12] + 1]) ? sa3[c3++] : sa12[c12++];
-      }
-      else //sa12[k] % 3 == 2
-      {
-        if (String[sa3[c3] + 1] < String[sa12[c12] + 1]) //sa3
-        {
-          SA[i] = sa3[c3++];
-        }
-        else if (String[sa3[c3] + 1] > String[sa12[c12] + 1]) //sa12
-        {
-          SA[i] = sa12[c12++];
-        }
-        else //sa12 order
-        {
-          SA[i] = (isa12[sa3[c3] + 2] < isa12[sa12[c12] + 2]) ? sa3[c3++] : sa12[c12++];
-        }
-      }
-    }
-  }
-  return;
-}
-
-void DC3(int *u, int N, int *SA, int K)
+void DC3(int *str, int N, int *SA, int K)
 {
   //  segment SA suffixes
   int n3 = (N + 2) / 3;
   int n12 = N - n3;
-  int *sa3 = (int *)malloc(n3 * sizeof(int));
+
   int *sa12 = (int *)malloc(n12 * sizeof(int));
-  int i = 0, j = 0, k = 0;
-  for (i = 0; i < N && j < n12; i++)
+  int i = 0, j = 0;
+  for (i = 0; i < N; i++)
   {
     if (i % 3 != 0)
       sa12[j++] = i;
   }
 
-  //  DC3 algorithm ///////////////////////////
-  //sort_sa12(u, N, sa12, n12, K);
-  //build_sa3(u, N, sa12, n12, sa3, n3, K);
-  //merge(u, N, sa12, n12, sa3, n3, SA);
-
   //  SA12  ///////////
-  raddix_sort(u, sa12, n12, 2, K);
-
+  raddix_sort(str, sa12, n12, 2, K);
+  //COLOCAR O [0] NO MEIO
   int mid = (N + 1) / 3;
-  int *u2 = (int *)malloc((n12) * sizeof(int)); //new string
-  i = j = 0;
-  k = 0;
+  int *u = (int *)malloc((n12 + 3) * sizeof(int)); //new string
+  int id = 1;
 
   if (sa12[0] % 3 == 1) //mod 1
-    u2[sa12[0] / 3] = k;
+    u[sa12[0] / 3] = id;
   else //mod 2
-    u2[(sa12[0] / 3) + mid] = k;
+    u[(sa12[0] / 3) + mid + 1] = id;
   for (i = 1; i < n12; i++)
   { //unique triplets
-    if (u[sa12[i] + 0] != u[sa12[i - 1] + 0] ||
-        u[sa12[i] + 1] != u[sa12[i - 1] + 1] ||
-        u[sa12[i] + 2] != u[sa12[i - 1] + 2])
-      k++;
+    if (str[sa12[i] + 0] != str[sa12[i - 1] + 0] ||
+        str[sa12[i] + 1] != str[sa12[i - 1] + 1] ||
+        str[sa12[i] + 2] != str[sa12[i - 1] + 2])
+      id++;
     if (sa12[i] % 3 == 1) //mod 1
-      u2[sa12[i] / 3] = k;
+      u[sa12[i] / 3] = id;
     else //mod 2
-      u2[(sa12[i] / 3) + mid] = k;
+      u[(sa12[i] / 3) + mid + 1] = id;
   }
-  if (k < n12)
+  u[mid] = u[n12 + 1] = u[n12 + 2] = 0;
+  if (id < n12)
   {
-    DC3(u2, n12, sa12, k + 1);
+    printf("====RECURSIVE====\n");
+    //recursion call
+    DC3(u, n12, sa12, id + 1);
+
+    //map sa12
+    for (i = 0; i < n12; i++)
+    {
+      if (sa12[i + 1] < mid + 1)
+        sa12[i] = sa12[i + 1] * 3 + 1; // i%3==1
+      else
+        sa12[i] = (sa12[i + 1] - (mid + 1)) * 3 + 2; // i%3==2
+    }
   }
 
   //  SA3   ///////////
-  i = j = 0;
+  int *sa3 = (int *)malloc(n3 * sizeof(int));
   //first step, sa12 order
-  for (i = 0; i < n12; i++)
+  for (i = 0, j = 0; i < n12; i++)
   {
     if (sa12[i] % 3 == 1)
       sa3[j++] = sa12[i] - 1;
   }
   //second step, raddix_sort(fist char)
-  raddix_sort(u, sa3, n3, 0, K);
+  raddix_sort(str, sa3, n3, 0, K);
 
   // MERGE ////////////
   int c3 = 0, c12 = 0;
 
-  int isa12[N];
-  for (i = 0; i < n12; i++) //order sa12
+  int *isa12 = (int *)malloc(N * sizeof(int));
+  for (i = 0; i < n12; i++) //inverse sa12
     isa12[sa12[i]] = i;
 
-  if (N % 3 == 0)
+  if ((N - 1) % 3 == 0)
   {
     SA[0] = N - 1;
     i = 1;
@@ -305,26 +193,24 @@ void DC3(int *u, int N, int *SA, int K)
   else
     i = 0;
 
-  for (i; i < N; i++)
+  while (i < N)
   {
     if (c3 >= n3) //  all sa3 suffixes in SA
     {
-      while (i++ < N)
-        SA[i] = sa12[c12++];
-
+      while (i < N)
+        SA[i++] = sa12[c12++];
       break;
     }
     if (c12 >= n12) //  all sa12 suffixes in SA
     {
-      while (i++ < N)
-        SA[i] = sa3[c3++];
-
+      while (i < N)
+        SA[i++] = sa3[c3++];
       break;
     }
 
-    if (u[sa3[c3]] < u[sa12[c12]]) // sa3
+    if (str[sa3[c3]] < str[sa12[c12]]) // sa3
       SA[i] = sa3[c3++];
-    else if (u[sa3[c3]] > u[sa12[c12]]) //  sa12
+    else if (str[sa3[c3]] > str[sa12[c12]]) //  sa12
       SA[i] = sa12[c12++];
     else //try again
     {
@@ -334,11 +220,11 @@ void DC3(int *u, int N, int *SA, int K)
       }
       else //sa12[k] % 3 == 2
       {
-        if (u[sa3[c3] + 1] < u[sa12[c12] + 1]) //sa3
+        if (str[sa3[c3] + 1] < str[sa12[c12] + 1]) //sa3
         {
           SA[i] = sa3[c3++];
         }
-        else if (u[sa3[c3] + 1] > u[sa12[c12] + 1]) //sa12
+        else if (str[sa3[c3] + 1] > str[sa12[c12] + 1]) //sa12
         {
           SA[i] = sa12[c12++];
         }
@@ -348,48 +234,53 @@ void DC3(int *u, int N, int *SA, int K)
         }
       }
     }
+    i++;
   }
 
   //  free  ////////////
   free(sa3);
   free(sa12);
-  free(u2);
-
-  return;
+  free(isa12);
+  free(u);
 }
 
 int main(int argc, char *argv[])
 {
-  char String[] = "mississippi$$$";
+  char *String = "mississippi";
+  int N;
   //  convert to 4 byte array
-  int *str = NULL;
-  int N = 14, K = 256;
   if (argc == 2)
   {
-    N = strlen(argv[1]) + 2;
-    str = (int *)malloc(N * sizeof(int));
-    for (int i = 0; i < N - 2; i++)
-    {
-      str[i] = (int)argv[1][i];
-    }
-    str[N - 1] = str[N - 2] = str[N - 3] = (int)'$';
+    N = strlen(argv[1]) + 1;
+    String = (char *)malloc(N * sizeof(char));
+    strcpy(String, argv[1]);
   }
   else
   {
-    str = (int *)malloc(N * sizeof(int));
-    for (int i = 0; i < N; i++)
-    {
-      str[i] = (int)String[i];
-    }
+    //String = "abca";
+    //String = "anabanana"
+    //String = "abracadabra";
+    //String = "otorrinolaringologista";
+    N = strlen(String);
   }
+  int *u = (int *)malloc((N + 2) * sizeof(int));
+  for (int i = 0; i < N; i++)
+  {
+    u[i] = String[i];
+  }
+  u[N - 1] = u[N] = u[N + 1] = '$';
 
   int *SA_DC3 = (int *)malloc(N * sizeof(int));
-  DC3(str, N - 2, SA_DC3, K);
+  for (int i = 0; i < N; i++)
+    SA_DC3[i] = 0;
+
+  //  sort
+  DC3(u, N, SA_DC3, 256);
 
   int *SA_Naive = Naive(String, N);
 
   //TESTES
-  printf("\n%s\ni\tnaive\tdc3\n", String);
+  printf("\n%s\ni\tnaive\tdc3\tN=%d\n", String, N);
   int flag = 1;
   for (int i = 0; i < N; i++)
   {
@@ -409,7 +300,9 @@ int main(int argc, char *argv[])
   //< FREE MEMORY >//
   free(SA_DC3);
   free(SA_Naive);
-  free(str);
+  free(u);
+  if (argc == 2)
+    free(String);
 
   return 0;
 }

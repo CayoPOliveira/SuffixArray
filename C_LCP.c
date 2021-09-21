@@ -1,3 +1,9 @@
+//DC3_felipe.c used to compute SA
+
+//I think its done
+//Now, go to the tests
+//But first, i need learn how do the tests
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,8 +16,209 @@ int validate = 1;
 #define DEBUG 0
 
 /****************/
-int naive(int_t *SA, char *Text, int n);
 int print(int *SA, uint_t *Text, int n, int m, int c);
+int radixPass(int_t *SA, uint_t *Text, int n, int sigma, int p);
+int DC3(int_t *SA, uint_t *Text, int n, int sigma);
+/****************/
+
+int_t *Naive_lcp(int_t *SA, uint_t *Text, int n)
+{
+  int_t *LCP = (int_t *)malloc(n * sizeof(int_t));
+  LCP[0] = 0;
+
+  for (int i = 1; i < n; i++)
+  {
+    int j = 0;
+    while (Text[SA[i] + j] == Text[SA[i - 1] + j])
+      j++;
+    LCP[i] = j;
+  }
+
+  return LCP;
+}
+
+int_t *KLAAP(int_t *SA, uint_t *Text, int n)
+{
+  int_t *LCP = (int_t *)malloc(n * sizeof(int_t));
+  LCP[0] = 0;
+
+  int_t *ISA = (int_t *)malloc(n * sizeof(int_t));
+  for (int i = 0; i < n; i++)
+  {
+    ISA[SA[i]] = i;
+  }
+
+  int l = 0;
+  for (int i = 0; i < n - 1; i++)
+  {
+    int j = ISA[i] - 1;
+    while (Text[i + l] == Text[SA[j] + l])
+      l++;
+    LCP[j + 1] = l;
+    (l > 0) ? l-- : l;
+  }
+
+  free(ISA);
+  return LCP;
+}
+
+int_t *PHI(int_t *SA, uint_t *Text, int n)
+{
+  int_t *phi = (int_t *)malloc(n * sizeof(int_t));
+  phi[SA[0]] = -1;
+
+  for (int i = 1; i < n; i++)
+  {
+    phi[SA[i]] = SA[i - 1];
+  }
+
+  int_t *plcp = (int_t *)malloc(n * sizeof(int_t));
+  plcp[n - 1] = 0;
+
+  int l = 0;
+  for (int i = 0; i < n - 1; i++)
+  {
+    int j = phi[i];
+    while (Text[i + l] == Text[j + l])
+      l++;
+    plcp[i] = l;
+    (l > 0) ? l-- : l;
+  }
+
+  int_t *LCP = (int_t *)malloc(n * sizeof(int_t));
+  for (int i = 0; i < n; i++)
+    LCP[i] = plcp[SA[i]];
+
+  free(phi);
+  free(plcp);
+  return LCP;
+}
+
+/****************/
+
+int main(int argc, char *argv[])
+{
+
+  printf("sizeof(int_t) = %zu bytes\n", sizeof(int_t));
+  unsigned char *Text;
+
+  // intput data
+  if (argc == 2)
+  {
+    Text = malloc((strlen(argv[1]) + 1) * sizeof(unsigned char));
+    sscanf(argv[1], "%s", Text);
+  }
+  else
+  {
+    //Text = "banaananabanaabnaabannbanbanbanabna";
+    //Text = "banana";
+    Text = "mississippi";
+  }
+
+  printf("Text = %s$\n", Text);
+  int n = strlen(Text) + 1;
+  int i, j;
+
+  // Text as int
+  uint_t *uText = (uint_t *)malloc((n + 2) * sizeof(uint_t));
+
+  for (int i = 0; i < n; i++)
+    uText[i] = Text[i];
+  uText[n - 1] = uText[n] = uText[n + 1] = '$';
+
+  // allocate
+  int_t *SA = (int_t *)malloc(n * sizeof(int_t));
+  for (int i = 0; i < n; i++)
+    SA[i] = 0;
+
+  // sort
+  DC3(SA, uText, n, 255);
+#if DEBUG
+  print(SA, uText, n, n, 1);
+#endif
+
+  //LCP
+  int_t *LCP = Naive_lcp(SA, uText, n);
+  int_t *kla_lcp = KLAAP(SA, uText, n);
+  int_t *phi_LCP = PHI(SA, uText, n);
+
+  if (validate)
+  {
+    lcp_print(SA, LCP, kla_lcp, phi_LCP, uText, n, 1);
+    for (int i = 0; i < n; i++)
+      if (LCP[i] != phi_LCP[i] || LCP[i] != kla_lcp[i])
+      {
+        printf("ERROR!!\n");
+#if DEBUG
+        print(SA, uText, n, n, 1);
+#endif
+        break;
+      }
+  }
+
+  /**/
+  // deallocate
+  free(SA);
+  free(LCP);
+  free(kla_lcp);
+  free(phi_LCP);
+  if (argc == 2)
+    free(Text);
+  free(uText);
+
+  return 0;
+}
+
+/****************/
+
+int lcp_print(int_t *SA, int_t *LCP, int_t *kla_LCP, int_t *phi_LCP, uint_t *Text, int n, int c)
+{
+
+  // output
+  printf("\ni\tSA\tNaive\tkla\tphi\tsuffixes\n");
+  for (int i = 0; i < n; ++i)
+  {
+    //if(i%3==0) continue;
+    printf("%d\t%d\t%d\t%d\t%d\t", i, SA[i], LCP[i], kla_LCP[i], phi_LCP[i]);
+    for (int j = SA[i]; j < n; j++)
+    {
+      if (c == 1)
+        printf("%c", Text[j]);
+      else
+        printf("[%d]", Text[j]);
+    }
+    printf("\n");
+    //printf("$$$\n");
+  }
+
+  return 0;
+}
+
+/****************/
+
+int print(int *SA, uint_t *Text, int n, int m, int c)
+{
+
+  // output
+  printf("i\tSA\tsuffixes\n");
+  for (int i = 0; i < n; ++i)
+  {
+    //if(i%3==0) continue;
+    printf("%d\t%d\t", i, SA[i]);
+    for (int j = SA[i]; j < m; j++)
+    {
+      if (c == 1)
+        printf("%c", Text[j]);
+      else
+        printf("[%d]", Text[j]);
+    }
+    printf("\n");
+    //printf("$$$\n");
+  }
+
+  return 0;
+}
+
 /****************/
 
 int radixPass(int_t *SA, uint_t *Text, int n, int sigma, int p)
@@ -220,136 +427,3 @@ int DC3(int_t *SA, uint_t *Text, int n, int sigma)
 
   return 0;
 }
-
-/****************/
-
-int main(int argc, char *argv[])
-{
-
-  printf("sizeof(int_t) = %zu bytes\n", sizeof(int_t));
-  unsigned char *Text;
-
-  // intput data
-  if (argc == 2)
-  {
-    Text = malloc((strlen(argv[1]) + 1) * sizeof(unsigned char));
-    sscanf(argv[1], "%s", Text);
-  }
-  else
-  {
-    //Text = "banaananaanana";
-    //Text = "banana";
-    Text = "mississippi";
-  }
-
-  printf("Text = %s$\n", Text);
-  int n = strlen(Text) + 1;
-  int i, j;
-
-  // Text as int
-  uint_t *uText = (uint_t *)malloc((n + 2) * sizeof(uint_t));
-
-  for (int i = 0; i < n; i++)
-    uText[i] = Text[i];
-  uText[n - 1] = uText[n] = uText[n + 1] = '$';
-
-  // allocate
-  int_t *SA = (int_t *)malloc(n * sizeof(int_t));
-  for (int i = 0; i < n; i++)
-    SA[i] = 0;
-
-  // sort
-  DC3(SA, uText, n, 255);
-#if DEBUG
-  print(SA, uText, n, n, 1);
-#endif
-
-  if (validate)
-  {
-    int_t *SA2 = (int_t *)malloc(n * sizeof(int_t));
-    naive(SA2, Text, n);
-
-    for (int i = 0; i < n; i++)
-      if (SA[i] != SA2[i])
-      {
-        printf("ERROR!!\n");
-#if DEBUG
-        print(SA2, uText, n, n, 1);
-#endif
-        break;
-      }
-    free(SA2);
-  }
-
-  /**/
-  // deallocate
-  free(SA);
-  if (argc == 2)
-    free(Text);
-  free(uText);
-
-  return 0;
-}
-
-/****************/
-
-typedef struct
-{
-  char *suffix;
-  int pos;
-} t_suffix;
-
-int cmp(const void *p1, const void *p2)
-{
-  const t_suffix *a = p1;
-  const t_suffix *b = p2;
-  return strcmp(a->suffix, b->suffix) < 0 ? 0 : 1;
-}
-
-int naive(int_t *SA, char *Text, int n)
-{
-
-  t_suffix *tmp = (t_suffix *)malloc(n * sizeof(t_suffix));
-
-  for (int i = 0; i < n; i++)
-  {
-    tmp[i].suffix = &Text[i];
-    tmp[i].pos = i;
-  }
-
-  qsort(tmp, n, sizeof(t_suffix), cmp);
-
-  for (int i = 0; i < n; i++)
-    SA[i] = tmp[i].pos;
-
-  free(tmp);
-
-  return 0;
-}
-
-/****************/
-
-int print(int *SA, uint_t *Text, int n, int m, int c)
-{
-
-  // output
-  printf("i\tSA\tsuffixes\n");
-  for (int i = 0; i < n; ++i)
-  {
-    //if(i%3==0) continue;
-    printf("%d\t%d\t", i, SA[i]);
-    for (int j = SA[i]; j < m; j++)
-    {
-      if (c == 1)
-        printf("%c", Text[j]);
-      else
-        printf("[%d]", Text[j]);
-    }
-    printf("\n");
-    //printf("$$$\n");
-  }
-
-  return 0;
-}
-
-/****************/
