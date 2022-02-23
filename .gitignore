@@ -2,6 +2,10 @@
 lib/*.o
 external/*.o
 
+# ignore results and outputs
+nohup.out
+results/*
+
 # ignore main executable
 main_sa
 
