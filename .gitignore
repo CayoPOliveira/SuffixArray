@@ -1,0 +1,7 @@
+# ignore ALL .o files
+lib/*.o
+external/*.o
+
+# ignore main executable
+main
+

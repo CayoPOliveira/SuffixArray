@@ -12,6 +12,7 @@
 #define int_lcp uint_t
 #define int_str uint_t
 
+
 int validate = 0;
 int TIME = 0;
 
