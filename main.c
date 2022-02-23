@@ -2,13 +2,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
+#include "external/SUS/lib/utils.h"
+#include "external/SUS/external/malloc_count/malloc_count.h"
 #include "lib/Naive.h"
 #include "lib/MM90.h"
 #include "lib/DC3.h"
 #include "lib/LCP.h"
-#include "external/SUS/lib/utils.h"
-#include "external/SUS/external/malloc_count/malloc_count.h"
 
 /****************/
 int main(int argc, char *argv[])
@@ -60,7 +61,7 @@ int main(int argc, char *argv[])
   printf("## PREPROCESSING ##\n");
 
   FILE *arq = NULL;
-  arq = fopen(argv[1], "r");
+  arq = fopen(c_file, "r");
   if (arq == NULL)
   {
     perror("FALHA NA ABERTURA DO ARQUIVO");
@@ -79,7 +80,7 @@ int main(int argc, char *argv[])
   free(T_temp);
   fclose(arq);
 
-  printf("N = %zu bytes\n", n);
+  printf("N = %u bytes\n", n);
   printf("sizeof(int) = %zu bytes\n", sizeof(int_t));
 
   if (time)
@@ -112,7 +113,7 @@ int main(int argc, char *argv[])
   {
   case 0:
     printf("## NAIVE_SA ##\n");
-    Naive_sa(uText, n, SA);
+    Naive_sa(Text, n, SA);
     break;
   case 1:
     printf("## MM90_SA ##\n");
@@ -120,7 +121,7 @@ int main(int argc, char *argv[])
     break;
   case 2:
     printf("## MM90_SA_+_LCP ##\n");
-    MMLCP(uText, n, SA, LCP);
+    MM_LCP(uText, n, SA, LCP);
     break;
   case 3:
     printf("## DC3_SA ##\n");
@@ -151,6 +152,10 @@ int main(int argc, char *argv[])
   if (pri == 1)
   {
     print(SA, LCP, uText, n);
+  }
+  if (comp == 1)
+  {
+    comp = 1;
   }
 
   // deallocate

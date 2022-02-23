@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Werror
+CFLAGS = -Wall -Werror -lm -lrt -ldl
 
 LIBOBJ = \
 				lib/DC3.o\
@@ -6,23 +6,30 @@ LIBOBJ = \
 				lib/Naive.o\
 				lib/LCP.o\
 
+EXTERNALOBJ = \
+				external/SUS/lib/utils.o\
+				external/SUS/external/malloc_count/malloc_count.o\
+
 #INPUT = 
 
 
 #################
 all: main_sa
 
-main_sa: main.c ${LIBOBJ}
-	gcc main.c ${LIBOBJ} $(CFLAGS) -lm -o main_sa
+main_sa: main.c ${LIBOBJ} ${EXTERNALOBJ}
+	gcc main.c ${LIBOBJ} ${EXTERNALOBJ} $(CFLAGS) -o main_sa
 
-lib/%.o(${LIBOBJ}): lib/%.c lib/%.h
-	gcc $(CFLAGS) $< -o $@
+lib/%.o: lib/%.c lib/%.h
+	gcc $(CFLAGS) $< -c -o $@
+
+external/%.o: external/%.c external/%.h
+	gcc $(CFLAGS) $< -c -o $@
 
 clean_obj:
 	rm -f lib/*.o *.o
 
 clean:
-	rm -f main_sa lib/*.o *.o
+	rm -f main_sa lib/*.o $(EXTERNALOBJ) *.o
 
 debug: main
 	valgrind --leak-check=full -s ./main_sa

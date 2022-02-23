@@ -3,9 +3,9 @@
 
 #define int_t int
 #define uint_t unsigned int
-#define int_sa int
-#define int_lcp int
-#define int_str unsigned int
+#define int_sa uint_t
+#define int_lcp uint_t
+#define int_str uint_t
 
 // DEBUG
 int SA_Compare(int_lcp *a, int_lcp *b, uint_t n);
