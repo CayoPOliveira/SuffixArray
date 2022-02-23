@@ -106,7 +106,7 @@ int *MM(int_str *Text, uint_t N, int_sa *SA)
   return 0;
 }
 
-int *MMLCP(int_str *Text, uint_t N, int_sa *SA, int_lcp *LCP)
+int *MM_LCP(int_str *Text, uint_t N, int_sa *SA, int_lcp *LCP)
 {
   int_t i, j, H, saH, pos, aux;
 

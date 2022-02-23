@@ -9,6 +9,6 @@
 
 //  MM90 ===============================================
 int *MM(int_str *Text, uint_t N, int_sa *SA);
-int *MMLCP(int_str *Text, uint_t N, int_sa *SA, int_lcp *LCP);
+int *MM_LCP(int_str *Text, uint_t N, int_sa *SA, int_lcp *LCP);
 
 #endif

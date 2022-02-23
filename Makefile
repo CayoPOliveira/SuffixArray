@@ -1,3 +1,5 @@
+CFLAGS = -Wall -Werror
+
 LIBOBJ = \
 				lib/DC3.o\
 				lib/MM90.o\
@@ -8,22 +10,22 @@ LIBOBJ = \
 
 
 #################
-all: main
+all: main_sa
 
-main: main.c ${LIBOBJ}
-	gcc -Wall -Werror main.c ${LIBOBJ} -lm -o main
+main_sa: main.c ${LIBOBJ}
+	gcc main.c ${LIBOBJ} $(CFLAGS) -lm -o main_sa
 
 lib/%.o(${LIBOBJ}): lib/%.c lib/%.h
-	gcc -Wall -Werror $< -o $@
+	gcc $(CFLAGS) $< -o $@
 
 clean_obj:
 	rm -f lib/*.o *.o
 
 clean:
-	rm -f main lib/*.o *.o
+	rm -f main_sa lib/*.o *.o
 
 debug: main
-	valgrind --leak-check=full -s ./main
+	valgrind --leak-check=full -s ./main_sa
 
 run:
 	./main

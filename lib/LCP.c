@@ -6,6 +6,7 @@
 int LCP_Compare(int_lcp *a, int_lcp *b, uint_t n)
 {
   int flag = 1;
+  printf("== LCP Compare ==");
   for (int i = 0; i < n; i++)
   {
     if (a[i] != b[i])
@@ -18,7 +19,7 @@ int LCP_Compare(int_lcp *a, int_lcp *b, uint_t n)
 }
 
 //  NAIVE ===============================================
-int LCP_Naive(int_str *Text, uint_t n, int_sa *SA, int_lcp *LCP)
+int Naive_LCP(int_str *Text, uint_t n, int_sa *SA, int_lcp *LCP)
 {
   LCP[0] = 0;
   for (int i = 1; i < n; i++)

@@ -8,7 +8,10 @@
 #define int_str uint_t
 
 #define DEBUG 0
-#define example 1
+#define example 0
+
+//====================================================
+#define min(a, b) ((a) < (b) ? (a) : (b))
 
 // Min SegTree ========================================
 int_lcp *segtreeBuild(int_lcp V[], int_t n);

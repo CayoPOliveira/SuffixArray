@@ -2,13 +2,6 @@
 #include <stdlib.h>
 #include "DC3.h"
 
-int min(int a, int b)
-{
-  if (a < b)
-    return a;
-  return b;
-}
-
 int_lcp *segtreeBuild(int_lcp V[], int_t n)
 {
   int_lcp *tree = (int_lcp *)malloc((2 * n) * sizeof(int));

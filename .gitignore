@@ -3,5 +3,7 @@ lib/*.o
 external/*.o
 
 # ignore main executable
-main
+main_sa
 
+# text editor 
+.vscode/

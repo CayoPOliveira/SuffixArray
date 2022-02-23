@@ -8,10 +8,10 @@
 #define int_str uint_t
 
 // DEBUG
-int_t LCP_Compare(int_lcp *a, int_lcp *b, uint_t n);
+int LCP_Compare(int_lcp *a, int_lcp *b, uint_t n);
 
 //  LCP ===============================================
-int LCP_Naive(int_str *Text, uint_t n, int_sa *SA, int_lcp *LCP);
+int Naive_LCP(int_str *Text, uint_t n, int_sa *SA, int_lcp *LCP);
 int KASAI(int_str *Text, uint_t n, int_sa *SA, int_lcp *LCP);
 int PHI(int_str *Text, uint_t n, int_sa *SA, int_lcp *LCP);
 
