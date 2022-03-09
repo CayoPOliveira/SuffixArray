@@ -26,10 +26,10 @@ external/%.o: external/%.c external/%.h
 	gcc $(CFLAGS) $< -c -o $@
 
 clean_obj:
-	rm -f lib/*.o *.o
+	rm -f ${LIBOBJ} $(EXTERNALOBJ) *.o
 
 clean:
-	rm -f main_sa lib/*.o $(EXTERNALOBJ) *.o
+	rm -f main_sa ${LIBOBJ} $(EXTERNALOBJ) *.o
 
 debug: main
 	valgrind --leak-check=full -s ./main_sa

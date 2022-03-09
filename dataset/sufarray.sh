@@ -12,7 +12,7 @@ for i in /home/data/pizza/*; do
 
 	for j in {0..6}; do 
 		echo ALG $j; 
-		../main_sa $i -A $j -t >> results/${test};
+		./main_sa $i -A $j -t >> results/${test};
 		echo "" >> results/${test};
 		echo ""
 	done;
