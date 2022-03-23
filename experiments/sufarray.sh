@@ -8,10 +8,11 @@ for i in /home/data/pizza/*; do
 	date >> results/${test}
 	echo "####";
 	echo ${test}; 
-	ls -lah $i
+	#ls -lah $i
 
-	for j in {0..6}; do 
-		echo ALG $j; 
+	for j in {1..6}; do 
+		echo "ALG $j"; 
+		echo "ALG $j" >> results/${test}; 
 		./main_sa $i -A $j -t >> results/${test};
 		echo "" >> results/${test};
 		echo ""

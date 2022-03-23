@@ -107,47 +107,69 @@ int main(int argc, char *argv[])
     LCP[i] = 0;
   }
 
-  if (time)
-    time_start(&t_start, &c_start);
   switch (alg)
   {
   case 0:
     printf("## NAIVE_SA ##\n");
-    Naive_sa(Text, n, SA);
+    //Naive_sa(Text, n, SA);
+    printf("## NAIVE_LCP ##\n");
+    //Naive_LCP(uText, n, SA, LCP);
     break;
   case 1:
+    if(time) time_start(&t_start, &c_start);
     printf("## MM90_SA ##\n");
     MM(uText, n, SA);
-    break;
-  case 2:
-    printf("## MM90_SA_+_LCP ##\n");
-    MM_LCP(uText, n, SA, LCP);
-    break;
-  case 3:
-    printf("## DC3_SA ##\n");
-    DC3(uText, n, SA, 255);
-    break;
-  case 4:
-    printf("## DC3_SA_+_LCP ##\n");
-    DC3_LCP(uText, n, SA, LCP, 255);
-    break;
-  case 5:
-    printf("## NAIVE_LCP ##\n");
-    Naive_LCP(uText, n, SA, LCP);
-    break;
-  case 6:
+    if (time) fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
+    if(time) time_start(&t_start, &c_start);
     printf("## KASAI_LCP ##\n");
     KASAI(uText, n, SA, LCP);
+    if (time) fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
     break;
-  case 7:
+  case 2:
+    if(time) time_start(&t_start, &c_start);
+    printf("## MM90_SA ##\n");
+    MM(uText, n, SA);
+    if (time) fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
+    if(time) time_start(&t_start, &c_start);
     printf("## PHI_LCP ##\n");
     PHI(uText, n, SA, LCP);
+    if (time) fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
+    break;
+  case 3:
+    if(time) time_start(&t_start, &c_start);
+    printf("## MM90_SA_+_LCP ##\n");
+    MM_LCP(uText, n, SA, LCP);
+    if (time) fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
+    break;
+  case 4:
+    if(time) time_start(&t_start, &c_start);
+    printf("## DC3_SA ##\n");
+    DC3(uText, n, SA, 255);
+    if (time) fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
+    if(time) time_start(&t_start, &c_start);
+    printf("## KASAI_LCP ##\n");
+    KASAI(uText, n, SA, LCP);
+    if (time) fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
+    break;
+  case 5:
+    if(time) time_start(&t_start, &c_start);
+    printf("## DC3_SA ##\n");
+    DC3(uText, n, SA, 255);
+    if (time) fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
+    if(time) time_start(&t_start, &c_start);
+    printf("## PHI_LCP ##\n");
+    PHI(uText, n, SA, LCP);
+    if (time) fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
+    break;
+  case 6:
+    if(time) time_start(&t_start, &c_start);
+    printf("## DC3_SA_+_LCP ##\n");
+    DC3_LCP(uText, n, SA, LCP, 255);
+    if (time) fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
     break;
   default:
     break;
   }
-  if (time)
-    fprintf(stderr, "%.6lf\n", time_stop(t_start, c_start));
 
   if (pri == 1)
   {
