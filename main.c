@@ -4,12 +4,29 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "external/SUS/lib/utils.h"
-#include "external/SUS/external/malloc_count/malloc_count.h"
+#include "external/malloc_count/malloc_count.h"
 #include "lib/Naive.h"
 #include "lib/MM90.h"
 #include "lib/DC3.h"
 #include "lib/LCP.h"
+
+void time_start(time_t *t_time, clock_t *c_clock)
+{
+
+  *t_time = time(NULL);
+  *c_clock = clock();
+}
+
+double time_stop(time_t t_time, clock_t c_clock)
+{
+
+  double aux1 = (clock() - c_clock) / (double)(CLOCKS_PER_SEC);
+  double aux2 = difftime(time(NULL), t_time);
+
+  printf("CLOCK = %lf TIME = %lf\n", aux1, aux2);
+
+  return aux1;
+}
 
 /****************/
 int main(int argc, char *argv[])
@@ -24,19 +41,19 @@ int main(int argc, char *argv[])
   extern int optind, opterr, optopt;
   char *c_file = NULL;
 
-  int c, alg = 0, comp = 0, pri = 0, time = 0;
-  while ((c = getopt(argc, argv, "A:kpct")) != -1)
+  int c, alg = 0, pri = 0, time = 0, memo = 0;
+  while ((c = getopt(argc, argv, "A:M:pt")) != -1)
   {
     switch (c)
     {
     case 'A':
       alg = (int)atoi(optarg);
       break;
+    case 'M':
+      memo = (int)atoi(optarg);
+      break;
     case 'p':
       pri = 1;
-      break;
-    case 'c':
-      comp = 1;
       break;
     case 't':
       time = 1;
@@ -152,10 +169,6 @@ int main(int argc, char *argv[])
   if (pri == 1)
   {
     print(SA, LCP, uText, n);
-  }
-  if (comp == 1)
-  {
-    comp = 1;
   }
 
   // deallocate

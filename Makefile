@@ -7,8 +7,7 @@ LIBOBJ = \
 				lib/LCP.o\
 
 EXTERNALOBJ = \
-				external/SUS/lib/utils.o\
-				external/SUS/external/malloc_count/malloc_count.o\
+				external/malloc_count/malloc_count.o"
 
 #INPUT = 
 
@@ -35,4 +34,4 @@ debug: main
 	valgrind --leak-check=full -s ./main_sa
 
 run:
-	./main
+	./main_sa

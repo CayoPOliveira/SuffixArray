@@ -10,7 +10,7 @@ for i in /home/data/pizza/*; do
 	echo ${test}; 
 	ls -lah $i
 
-	for j in {0..6}; do 
+	for j in {0..7}; do 
 		echo ALG $j; 
 		./main_sa $i -A $j -t >> results/${test};
 		echo "" >> results/${test};

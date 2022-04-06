@@ -133,7 +133,7 @@ int DC3(int_str *Text, uint_t n, int_sa *SA, int_t sigma)
   if (name < n12)
   {
 
-    printf("====RECURSIVE====\n");
+    // printf("====RECURSIVE====\n");
 #if DEBUG
     for (int i = 0; i < n12 + 1; i++)
       printf("%d ", TextU[i]);
@@ -328,7 +328,7 @@ int DC3_LCP(int_str *Text, uint_t n, int_sa *SA, int_lcp *LCP, int_t sigma)
   // DC3 (recursive)
   else //(name < n12)
   {
-    printf("\n====RECURSIVE====\n");
+    // printf("\n====RECURSIVE====\n");
 #if DEBUG
     for (int i = 0; i < n12 + 1; i++)
       printf("%d ", TextU[i]);

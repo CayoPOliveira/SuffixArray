@@ -4,6 +4,7 @@ external/*.o
 
 # ignore results and outputs
 nohup.out
+results/
 results/*
 
 # ignore main executable
