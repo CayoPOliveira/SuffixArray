@@ -1,1 +1,4 @@
-Study of Suffix Array
+Study of Suffix Array 
+
+Not finished
+
